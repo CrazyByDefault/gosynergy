@@ -35,9 +35,9 @@ func readMouse(f *os.File) {
     
 }
 
-func main() {
+func getMouseRel() {
 
-	device := "/dev/input/mouse0"    
+	device := "/dev/input/mouse3"    
 
     // You'll often want more control over how and what
     // parts of a file are read. For these tasks, start
