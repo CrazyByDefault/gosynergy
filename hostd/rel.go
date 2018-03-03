@@ -16,22 +16,32 @@ func check(e error) {
 }
 
 func readMouse(f *os.File) {
-	var l, r, mid int
+	var l, r, mid, xr, yr int
 	b1 := make([]byte, 24)
 	f.Read(b1)
 
-	fmt.Println(b1)
+	//fmt.Println(b1)
 
 	l = int(b1[0] & 0x1)
 	r = int(b1[0] & 0x2)
 	mid = int(b1[0] & 0x4)
+	xr = int(b1[1])
+	yr = int(b1[2])
 
-	fmt.Printf("left=%d , right=%d , middle=%d \n", l, r/2, mid/4)
+	fmt.Printf("left=%d , right=%d , middle=%d \n", r/2, l, mid/4)
+	fmt.Printf("xr=%d , yr=%d \n", xr, yr)
+
 }
 
-func main() {
+func getMouseRel() {
 
-	device := "/dev/input/mouse0"
+	device := "/dev/input/mouse3"
+
+	// You'll often want more control over how and what
+	// parts of a file are read. For these tasks, start
+	// by `Open`ing a file to obtain an `os.File` value.
+	f, err := os.Open(device)
+	check(err)
 
 	// You'll often want more control over how and what
 	// parts of a file are read. For these tasks, start
