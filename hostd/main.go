@@ -1,5 +1,9 @@
 package main
 
+import (
+	"./mouselogger"
+)
+
 func main() {
-	getMouseAbs()
+	mouselogger.getMouseAbs()
 }

@@ -1,9 +1,9 @@
-package main
+package mouselogger
 
 import (
 	"fmt"
-	"time"
 	"os/exec"
+	"time"
 )
 
 func getMouseAbs() {
@@ -11,23 +11,20 @@ func getMouseAbs() {
 	//str:="xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'"
 	//cmd1,_ := exec.Command("bash" , "-c", str).Output()
 	//fmt.Println(cmd1)
-	
 
+	for true {
+		cmd, _ := exec.Command("xdotool", "getmouselocation").Output()
 
-for true {
-		cmd,_ := exec.Command("xdotool", "getmouselocation").Output()
+		// // Stdout buffer
+		// cmdOutput := &bytes.Buffer{}
+		// // Attach buffer to command
 
-// // Stdout buffer
-// cmdOutput := &bytes.Buffer{}
-// // Attach buffer to command
+		// cmd.Stdout = cmdOutput
 
-// cmd.Stdout = cmdOutput
+		// Execute command
+		fmt.Println(string(cmd))
+		time.Sleep(1000 * time.Nanosecond)
 
-
-// Execute command
-fmt.Println(string(cmd))
-time.Sleep(1000* time.Nanosecond)
-
-	} 	
+	}
 
 }
