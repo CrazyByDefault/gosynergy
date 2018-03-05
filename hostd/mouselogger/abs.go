@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-func getMouseAbs() {
+// GetMouseAbs returns the output of xdotool getmouselocation
+func GetMouseAbs() {
 	// Create an *exec.Cmd
 	//str:="xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'"
 	//cmd1,_ := exec.Command("bash" , "-c", str).Output()
@@ -22,7 +23,7 @@ func getMouseAbs() {
 		// cmd.Stdout = cmdOutput
 
 		// Execute command
-		fmt.Println(string(cmd))
+		fmt.Print(string(cmd))
 		time.Sleep(1000 * time.Nanosecond)
 
 	}

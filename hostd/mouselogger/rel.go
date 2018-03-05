@@ -33,15 +33,10 @@ func readMouse(f *os.File) {
 
 }
 
-func getMouseRel() {
+// GetMouseRel reads the mouse device and returns the relative motion values, as well as mouseclick events
+func GetMouseRel() {
 
-	device := "/dev/input/mouse3"
-
-	// You'll often want more control over how and what
-	// parts of a file are read. For these tasks, start
-	// by `Open`ing a file to obtain an `os.File` value.
-	f, err := os.Open(device)
-	check(err)
+	device := "/dev/input/mouse0"
 
 	// You'll often want more control over how and what
 	// parts of a file are read. For these tasks, start
