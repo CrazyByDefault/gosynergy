@@ -48,7 +48,7 @@ func RecieveFromHost() {
 
 // ListenForHost waits for the initial host ping, and responds with a pong.
 func ListenForHost() {
-	ln, _ := net.Listen("tcp", ":6969")
+	ln, _ := net.Listen("tcp", ":8080")
 
 	conn, _ := ln.Accept()
 	fmt.Println("Connection accepted")

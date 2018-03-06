@@ -52,8 +52,10 @@ func mouseRelTransmit(chRel chan mouselogger.Activity) {
 func main() {
 
 	getRes()
+	fmt.Println("Discovering clients on the network")
 	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
 	connectedDevices = append(connectedDevices, netcode.DiscoverClients()...)
+	fmt.Println("Done.")
 
 	var wg sync.WaitGroup
 
@@ -61,7 +63,7 @@ func main() {
 	chAct := make(chan mouselogger.Activity)
 	chKey := make(chan uint16)
 
-	wg.Add(1)
+	wg.Add(2)
 	go mouseListener(chAbs, chAct)
 	// netcode.DiscoverClients()
 	// go keebListener(ch_key)

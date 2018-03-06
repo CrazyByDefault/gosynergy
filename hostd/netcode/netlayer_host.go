@@ -94,7 +94,7 @@ func isClient(IPToCheck net.IP) bool {
 
 	fmt.Println("Checking if " + IPToCheck.String() + " is a client")
 
-	conn, err := net.Dial("tcp", IPToCheck.String()+":6969")
+	conn, err := net.Dial("tcp", IPToCheck.String()+":8080")
 
 	if err != nil {
 		// log.Print("Error: ", err)
