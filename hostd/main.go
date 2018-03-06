@@ -14,6 +14,8 @@ import (
 var connectedDevices []net.IP
 var activeDeviceIndex int
 
+var wg sync.WaitGroup
+
 const port = 7000
 
 func getRes() {
@@ -39,14 +41,24 @@ func keebListener(chKey chan uint16) {
 }
 
 func mouseListener(chAbs chan mouselogger.Cords, chAct chan mouselogger.Activity) {
-	for true {
-		go mouselogger.GetMouseAbs(chAbs)
-		go mouselogger.GetMouseRel(chAct)
-	}
+	go func() {
+		for {
+			mouselogger.GetMouseAbs(chAbs)
+		}
+	}()
+
+	go func() {
+		for {
+			mouselogger.GetMouseRel(chAct)
+		}
+	}()
+
+	wg.Done()
 }
 
 func mouseRelTransmit(chRel chan mouselogger.Activity) {
 	netcode.SendToActiveDevice(connectedDevices[activeDeviceIndex], port, chRel)
+	wg.Done()
 }
 
 func main() {
@@ -54,10 +66,8 @@ func main() {
 	getRes()
 	fmt.Println("Discovering clients on the network")
 	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
-	connectedDevices = append(connectedDevices, netcode.DiscoverClients()...)
+	// connectedDevices = append(connectedDevices, netcode.DiscoverClients()...)
 	fmt.Println("Done.")
-
-	var wg sync.WaitGroup
 
 	chAbs := make(chan mouselogger.Cords)
 	chAct := make(chan mouselogger.Activity)

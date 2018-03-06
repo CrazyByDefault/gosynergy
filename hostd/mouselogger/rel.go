@@ -47,6 +47,7 @@ func GetMouseRel(ch chan Activity) {
 	// parts of a file are read. For these tasks, start
 	// by `Open`ing a file to obtain an `os.File` value.
 	f, err := os.Open(device)
+	defer f.Close()
 	check(err)
 
 	// You'll often want more control over how and what
