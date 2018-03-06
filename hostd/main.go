@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 	"os/exec"
+	"strconv"
+	"strings"
 	"sync"
 
 	"./keylogger"
@@ -18,11 +20,22 @@ var wg sync.WaitGroup
 
 const port = 7000
 
-func getRes() {
+func getRes() int {
 	toExec := "xdpyinfo  | grep -oP 'dimensions:\\s+\\K\\S+'"
 	cmd, _ := exec.Command("bash", "-c", toExec).Output()
-	fmt.Printf("%s", cmd)
+	s := strings.Split(string(cmd), "x")
+	lim, _ := strconv.Atoi(s[0])
+
+	return lim
 }
+
+// func boundaryCheck(chAbs chan mouselogger.Cords, lim int) {
+
+// 	if chAbs.X >= lim-10 {
+// 		fmt.Print("boundary")
+// 	}
+
+// }
 
 func keebListener(chKey chan uint16) {
 	devs, err := keylogger.NewDevices()
@@ -68,13 +81,19 @@ func main() {
 	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
 	// connectedDevices = append(connectedDevices, netcode.DiscoverClients()...)
 	fmt.Println("Done.")
-
+	lim := getRes()
 	chAbs := make(chan mouselogger.Cords)
 	chAct := make(chan mouselogger.Activity)
 	chKey := make(chan uint16)
 
 	wg.Add(2)
 	go mouseListener(chAbs, chAct)
+	/*////////////////////////////////////////////////////////////
+	I dont know how the channels are working
+	so I made the function once see how the channel
+	should be passed
+	/////////////////////////////////*/
+	go mouselogger.BoundaryCheck(chAbs, lim)
 	// netcode.DiscoverClients()
 	// go keebListener(ch_key)
 	go mouseRelTransmit(chAct)

@@ -41,7 +41,7 @@ func readMouse(f *os.File, ch chan Activity) {
 
 func GetMouseRel(ch chan Activity) {
 
-	device := "/dev/input/mouse0"
+	device := "/dev/input/mouse2"
 
 	// You'll often want more control over how and what
 	// parts of a file are read. For these tasks, start
