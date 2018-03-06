@@ -1,13 +1,16 @@
 package netcode
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/gob"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"os/exec"
 	"strconv"
+	"strings"
 
 	"../mouselogger"
 )
@@ -51,6 +54,7 @@ func SendToActiveDevice(deviceIP net.IP, port int, chRel chan mouselogger.Activi
 		if err != nil {
 			fmt.Println(item, err)
 		}
+		network.Reset()
 		// time.Sleep(time.Second * 1)
 	}
 }
@@ -66,4 +70,34 @@ func GetOutboundIP() net.IP {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
 	return localAddr.IP
+}
+
+// DiscoverClients scans the network and returns all the active clients on the network
+func DiscoverClients() []net.IP {
+	var clients []net.IP
+
+	arp := "arp | sed -n 's/.*\\(\\(\\(^\\| \\)[0-9]\\{1,3\\}\\.\\)\\{1\\}\\([0-9]\\{1,3\\}\\.\\)\\{2\\}[0-9]\\{1,3\\}\\) .*/\\1/gp'"
+	cmd, _ := exec.Command("bash", "-c", arp).Output()
+	// fmt.Print(arp)
+	IPList := fmt.Sprintf("%s", cmd)
+
+	IPs := strings.Split(IPList, "\n")
+
+	for _, IP := range IPs {
+		if isClient(net.ParseIP(IP)) {
+			clients = append(clients, net.ParseIP(IP))
+		}
+	}
+	return clients
+}
+
+func isClient(IPToCheck net.IP) bool {
+	conn, _ := net.Dial("tcp", IPToCheck.String()+":6969")
+	fmt.Fprintf(conn, "ping\n")
+
+	message, _ := bufio.NewReader(conn).ReadString('\n')
+	if message == "pong" {
+		return true
+	}
+	return false
 }

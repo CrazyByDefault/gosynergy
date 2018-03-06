@@ -46,13 +46,14 @@ func mouseListener(chAbs chan mouselogger.Cords, chAct chan mouselogger.Activity
 }
 
 func mouseRelTransmit(chRel chan mouselogger.Activity) {
-	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
 	netcode.SendToActiveDevice(connectedDevices[activeDeviceIndex], port, chRel)
 }
 
 func main() {
 
 	getRes()
+	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
+	connectedDevices = append(connectedDevices, netcode.DiscoverClients()...)
 
 	var wg sync.WaitGroup
 
@@ -62,6 +63,7 @@ func main() {
 
 	wg.Add(1)
 	go mouseListener(chAbs, chAct)
+	// netcode.DiscoverClients()
 	// go keebListener(ch_key)
 	go mouseRelTransmit(chAct)
 

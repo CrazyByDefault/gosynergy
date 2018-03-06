@@ -1,6 +1,7 @@
 package netcode
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/gob"
 	"fmt"
@@ -41,6 +42,24 @@ func RecieveFromHost() {
 
 		if err != nil {
 			fmt.Println("Error: ", err)
+		}
+	}
+}
+
+// ListenForHost waits for the initial host ping, and responds with a pong.
+func ListenForHost() {
+	ln, _ := net.Listen("tcp", ":6969")
+
+	conn, _ := ln.Accept()
+
+	for {
+
+		message, _ := bufio.NewReader(conn).ReadString('\n')
+
+		if string(message) == "ping" {
+			conn.Write([]byte("pong\n"))
+			println("Connected to host")
+			break
 		}
 	}
 }
