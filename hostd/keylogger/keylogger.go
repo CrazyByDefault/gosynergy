@@ -100,6 +100,25 @@ func (t *KeyLogger) Read() (chan InputEvent, error) {
 	return ret, nil
 }
 
-func (t *InputEvent) KeyString() string {
-	return keyCodeMap[t.Code]
+func (t *InputEvent) KeyString() uint16 {
+	return t.Code
+}
+
+func KeyActivity(ch chan uint16, rd *KeyLogger) {
+
+	in, err := rd.Read()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for i := range in {
+
+		//we only need keypress
+		if i.Type == EV_KEY {
+			//fmt.Println(i.KeyString())
+			ch <- (i.KeyString())
+		}
+	}
+
 }
