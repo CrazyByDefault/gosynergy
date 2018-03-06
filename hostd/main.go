@@ -20,5 +20,6 @@ func getRes() {
 }
 
 func main() {
+	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
 	netcode.SendToActiveDevice(connectedDevices[activeDeviceIndex], port)
 }

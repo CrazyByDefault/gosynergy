@@ -3,10 +3,10 @@ package netcode
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"strconv"
-	"time"
 )
 
 func checkError(err error) {
@@ -28,7 +28,7 @@ func SendToActiveDevice(deviceIP net.IP, port int) {
 	ServerAddr, err := net.ResolveUDPAddr("udp", ServerIP.String())
 	checkError(err)
 
-	LocalAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:0")
+	LocalAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:7000")
 	checkError(err)
 
 	Conn, err := net.DialUDP("udp", LocalAddr, ServerAddr)
@@ -44,6 +44,19 @@ func SendToActiveDevice(deviceIP net.IP, port int) {
 		if err != nil {
 			fmt.Println(msg, err)
 		}
-		time.Sleep(time.Second * 1)
+		// time.Sleep(time.Second * 1)
 	}
+}
+
+// GetOutboundIP gets the active IP of the own machine through magic :)
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
 }
