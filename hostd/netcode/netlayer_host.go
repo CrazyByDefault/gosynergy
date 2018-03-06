@@ -1,7 +1,6 @@
 package netcode
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/gob"
 	"fmt"
@@ -92,12 +91,25 @@ func DiscoverClients() []net.IP {
 }
 
 func isClient(IPToCheck net.IP) bool {
-	conn, _ := net.Dial("tcp", IPToCheck.String()+":6969")
-	fmt.Fprintf(conn, "ping\n")
 
-	message, _ := bufio.NewReader(conn).ReadString('\n')
-	if message == "pong" {
+	fmt.Println("Checking if " + IPToCheck.String() + " is a client")
+
+	conn, err := net.Dial("tcp", IPToCheck.String()+":6969")
+
+	if err != nil {
+		// log.Print("Error: ", err)
+		return false
+	}
+
+	defer conn.Close()
+	conn.Write([]byte("ping\r\n\r\n"))
+
+	buff := make([]byte, 1024)
+	n, _ := conn.Read(buff)
+	if fmt.Sprintf("%s", buff[:n]) != "" {
+		fmt.Println("Pong!")
 		return true
 	}
+
 	return false
 }
