@@ -1,9 +1,13 @@
 package netcode
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
 	"net"
 	"os"
+
+	"../mouselogger"
 )
 
 func checkError(err error) {
@@ -24,10 +28,15 @@ func RecieveFromHost() {
 	checkError(err)
 	defer ServerConn.Close()
 
+	var network bytes.Buffer
+	dec := gob.NewDecoder(&network)
+
 	buf := make([]byte, 1024)
 
 	for {
+		var recievedItem mouselogger.Activity
 		n, addr, err := ServerConn.ReadFromUDP(buf)
+		dec.Decode(&recievedItem)
 		fmt.Println("Received ", string(buf[0:n]), " from ", addr)
 
 		if err != nil {

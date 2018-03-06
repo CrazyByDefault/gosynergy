@@ -2,11 +2,14 @@ package netcode
 
 import (
 	"bytes"
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"strconv"
+
+	"../mouselogger"
 )
 
 func checkError(err error) {
@@ -17,7 +20,7 @@ func checkError(err error) {
 }
 
 // SendToActiveDevice sends stuff to the active device using UDP
-func SendToActiveDevice(deviceIP net.IP, port int) {
+func SendToActiveDevice(deviceIP net.IP, port int, chRel chan mouselogger.Activity) {
 
 	list := []string{deviceIP.String(), ":", strconv.Itoa(port)}
 	var ServerIP bytes.Buffer
@@ -28,21 +31,25 @@ func SendToActiveDevice(deviceIP net.IP, port int) {
 	ServerAddr, err := net.ResolveUDPAddr("udp", ServerIP.String())
 	checkError(err)
 
-	LocalAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:7000")
+	Conn, err := net.DialUDP("udp", nil, ServerAddr)
 	checkError(err)
 
-	Conn, err := net.DialUDP("udp", LocalAddr, ServerAddr)
-	checkError(err)
+	var network bytes.Buffer
+	enc := gob.NewEncoder(&network)
 
 	defer Conn.Close()
-	i := 0
+
 	for {
-		msg := strconv.Itoa(i)
-		i++
-		buf := []byte(msg)
+		item := <-chRel
+		encErr := enc.Encode(item)
+		if err != nil {
+			log.Fatal("encode error:", encErr)
+		}
+
+		buf := network.Bytes()
 		_, err := Conn.Write(buf)
 		if err != nil {
-			fmt.Println(msg, err)
+			fmt.Println(item, err)
 		}
 		// time.Sleep(time.Second * 1)
 	}
