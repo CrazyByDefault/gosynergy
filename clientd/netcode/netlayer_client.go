@@ -53,7 +53,6 @@ func ListenForHost() {
 	conn, _ := ln.Accept()
 
 	for {
-
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 
 		if string(message) == "ping" {
