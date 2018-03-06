@@ -51,12 +51,13 @@ func ListenForHost() {
 	ln, _ := net.Listen("tcp", ":6969")
 
 	conn, _ := ln.Accept()
+	fmt.Println("Connection accepted")
 
 	for {
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 
-		if string(message) == "ping" {
-			conn.Write([]byte("pong\n"))
+		if string(message) != "" {
+			conn.Write([]byte("pong\r\n\r\n"))
 			println("Connected to host")
 			break
 		}
