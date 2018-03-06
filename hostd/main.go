@@ -46,8 +46,8 @@ func mouseListener(chAbs chan mouselogger.Cords, chAct chan mouselogger.Activity
 }
 
 func mouseRelTransmit(chRel chan mouselogger.Activity) {
-	connectedDevices = append(connectedDevices, netcode.GetOutboundIP(), chRel)
-	netcode.SendToActiveDevice(connectedDevices[activeDeviceIndex], port)
+	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
+	netcode.SendToActiveDevice(connectedDevices[activeDeviceIndex], port, chRel)
 }
 
 func main() {
