@@ -1,11 +1,15 @@
 package mouselogger
 
 import (
-	"fmt"
+	//"fmt"
 	// "io"
 	//"io/ioutil"
 	"os"
 )
+
+type Activity struct {
+	Rx, Ry, Ri, Le, Mid int
+}
 
 // Reading files requires checking most calls for errors.
 // This helper will streamline our error checks below.
@@ -15,26 +19,27 @@ func check(e error) {
 	}
 }
 
-func readMouse(f *os.File) {
-	var l, r, mid, xr, yr int
+func readMouse(f *os.File, ch chan Activity) {
+	//var l, r, mid, xr, yr int
 	b1 := make([]byte, 24)
 	f.Read(b1)
 
 	//fmt.Println(b1)
+	a := Activity{}
+	a.Ri = int(b1[0] & 0x1)
+	a.Le = int(b1[0]&0x2) / 2
+	a.Mid = int(b1[0]&0x4) / 4
+	a.Rx = int(b1[1])
+	a.Ry = int(b1[2])
 
-	l = int(b1[0] & 0x1)
-	r = int(b1[0] & 0x2)
-	mid = int(b1[0] & 0x4)
-	xr = int(b1[1])
-	yr = int(b1[2])
+	ch <- a
 
-	fmt.Printf("left=%d , right=%d , middle=%d \n", r/2, l, mid/4)
-	fmt.Printf("xr=%d , yr=%d \n", xr, yr)
+	// fmt.Printf("left=%d , right=%d , middle=%d \n", r/2, l, mid/4)
+	// fmt.Printf("xr=%d , yr=%d \n", xr, yr)
 
 }
 
-// GetMouseRel reads the mouse device and returns the relative motion values, as well as mouseclick events
-func GetMouseRel() {
+func GetMouseRel(ch chan Activity) {
 
 	device := "/dev/input/mouse0"
 
@@ -44,8 +49,12 @@ func GetMouseRel() {
 	f, err := os.Open(device)
 	check(err)
 
-	for true {
-		readMouse(f)
-	}
+	// You'll often want more control over how and what
+	// parts of a file are read. For these tasks, start
+	// by `Open`ing a file to obtain an `os.File` value.
+
+	//	for true {
+	readMouse(f, ch)
+	//	}
 
 }

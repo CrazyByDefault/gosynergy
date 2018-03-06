@@ -18,7 +18,7 @@ func main() {
 	}
 
 	//keyboard device file, on your system it will be diffrent!
-	rd := keylogger.NewKeyLogger(devs[2])
+	rd := keylogger.NewKeyLogger(devs[4])
 
 	in, err := rd.Read()
 	if err != nil {
