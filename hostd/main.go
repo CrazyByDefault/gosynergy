@@ -14,7 +14,7 @@ import (
 )
 
 var connectedDevices []net.IP
-var activeDeviceIndex = 1
+var activeDeviceIndex int
 
 var wg sync.WaitGroup
 
@@ -29,12 +29,13 @@ func getRes() int {
 	return lim
 }
 
-func boundaryCheck(chAbs chan mouselogger.Cords, lim int) {
+func boundaryCheck(chAbs chan mouselogger.Cords, lim int, chSwitch chan bool) {
 	go func() {
 		for {
 			current := <-chAbs
-			if current.X >= lim-10 {
+			if current.X >= lim-3 {
 				fmt.Print("boundary")
+				switchActiveDevice(chSwitch)
 			}
 		}
 	}()
@@ -73,10 +74,23 @@ func mouseListener(chAbs chan mouselogger.Cords, chAct chan mouselogger.Activity
 	wg.Done()
 }
 
-func mouseRelTransmit(chRel chan mouselogger.Activity) {
-	conn := netcode.ConnectToActiveDevice(connectedDevices[activeDeviceIndex], port)
-	netcode.SendToActiveDevice(conn, chRel)
-	netcode.CloseActiveDevice(conn)
+func switchActiveDevice(chSwitch chan bool) {
+	if activeDeviceIndex == 0 {
+		activeDeviceIndex = 1
+	} else {
+		activeDeviceIndex = 0
+	}
+	chSwitch <- true
+}
+
+func mouseRelTransmit(chRel chan mouselogger.Activity, chSwitch chan bool) {
+	for {
+		switch activeDeviceIndex {
+		case 1:
+			conn := netcode.ConnectToActiveDevice(connectedDevices[activeDeviceIndex], port)
+			netcode.SendToActiveDevice(conn, chRel, chSwitch)
+		}
+	}
 	wg.Done()
 }
 
@@ -91,18 +105,20 @@ func main() {
 	chAbs := make(chan mouselogger.Cords)
 	chAct := make(chan mouselogger.Activity)
 	chKey := make(chan uint16)
+	chSwitch := make(chan bool)
 
 	wg.Add(3)
 	go mouseListener(chAbs, chAct)
-	go boundaryCheck(chAbs, lim)
+	go boundaryCheck(chAbs, lim, chSwitch)
 	// netcode.DiscoverClients()
 	// go keebListener(ch_key)
-	go mouseRelTransmit(chAct)
+	go mouseRelTransmit(chAct, chSwitch)
 
 	wg.Wait()
 	close(chAct)
 	close(chAbs)
 	close(chKey)
+	close(chSwitch)
 }
 
 // func sendToActiveDevice(cords Cords) {

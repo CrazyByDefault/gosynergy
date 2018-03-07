@@ -40,15 +40,24 @@ func ConnectToActiveDevice(deviceIP net.IP, port int) net.Conn {
 }
 
 // SendToActiveDevice sends mouse activity to the active device using UDP
-func SendToActiveDevice(Conn net.Conn, chRel chan mouselogger.Activity) {
+func SendToActiveDevice(Conn net.Conn, chRel chan mouselogger.Activity, chSwitch chan bool) {
 	enc := gob.NewEncoder(Conn)
+	defer Conn.Close()
 
 	for {
-		item := <-chRel
-		fmt.Print(item)
-		encErr := enc.Encode(item)
-		if encErr != nil {
-			log.Fatal("encode error:", encErr)
+		select {
+		default:
+			item := <-chRel
+			fmt.Print(item)
+			encErr := enc.Encode(item)
+			if encErr != nil {
+				log.Fatal("encode error:", encErr)
+			}
+			break
+
+		case <-chSwitch:
+			Conn.Close()
+			return
 		}
 		// time.Sleep(time.Second * 1)
 	}
