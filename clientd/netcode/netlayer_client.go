@@ -7,7 +7,7 @@ import (
 	"net"
 	"os"
 
-	"../mouselogger"
+	"../mousemover"
 )
 
 func checkError(err error) {
@@ -17,9 +17,9 @@ func checkError(err error) {
 	}
 }
 
-// RecieveFromHost recieves the data from the host -_-
-func RecieveFromHost() {
-	/* Lets prepare a address at any address at port 10001*/
+// RecieveFromHost recieves and decodes the data from the host 
+func RecieveFromHost(inChan chan mousemover.Activity) {
+	
 	ServerAddr, err := net.ResolveUDPAddr("udp", ":7000")
 	checkError(err)
 
@@ -31,10 +31,11 @@ func RecieveFromHost() {
 	dec := gob.NewDecoder(ServerConn)
 
 	for {
-		var recievedItem mouselogger.Activity
+		var recievedItem mousemover.Activity
 		dec.Decode(&recievedItem)
 		fmt.Println("Received")
 		fmt.Print(recievedItem)
+		inChan <- recievedItem
 
 		if err != nil {
 			fmt.Println("Error: ", err)

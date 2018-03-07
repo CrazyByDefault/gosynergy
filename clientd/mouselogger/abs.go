@@ -1,35 +1,36 @@
-package mousemover
+package mouselogger
 
 import (
 	//"fmt"
+	"fmt"
 	"os/exec"
+	"time"
 	//"time"
 	"strconv"
+	"strings"
 )
 
-// type Cords struct {
-// 	X, Y int
-// }
+type Cords struct {
+	X, Y int
+}
 
-func GetMouseAbs() {
+func GetMouseAbs(ch chan Cords) {
 	// Create an *exec.Cmd
 	//str:="xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'"
 	//cmd1,_ := exec.Command("bash" , "-c", str).Output()
 	//fmt.Println(cmd1)
 
 	//for true {
-	x := strconv.Itoa(39)
-	y := strconv.Itoa(39)
+	cmd, _ := exec.Command("xdotool", "getmouselocation").Output()
 
-	exec.Command("xdotool", "mousemove", x, y).Run()
-
-	// s := strings.Split(strings.Replace(string(cmd), ":", " ", -1), " ")
-	// c := Cords{}
-	// x, _ := strconv.Atoi(s[1])
-	// y, _ := strconv.Atoi(s[3])
-	// //wid,_:= strconv.Atoi(s[7])
-	// c.X = x
-	// c.Y = y
+	s := strings.Split(strings.Replace(fmt.Sprintf("%s", cmd), ":", " ", -1), " ")
+	c := Cords{}
+	x, _ := strconv.Atoi(s[1])
+	y, _ := strconv.Atoi(s[3])
+	// fmt.Println(x, y)
+	//wid,_:= strconv.Atoi(s[7])
+	c.X = x
+	c.Y = y
 
 	//strings.Replace(s, ":", " ", -1)
 	//s:=strings.Split(s, " ")
@@ -40,11 +41,11 @@ func GetMouseAbs() {
 	// cmd.Stdout = cmdOutput
 
 	// Execute command
-	// ch <- c
-	//fmt.Println(x,y)
+	ch <- c
+	// fmt.Println(x, y)
 	//fmt.Println(wid)
 	//fmt.Println(s[7])
-	//time.Sleep(1000 * time.Nanosecond)
+	time.Sleep(1000 * time.Nanosecond)
 
 	//}
 
