@@ -1,6 +1,7 @@
 package mousemover
 
 import (
+	"bytes"
 	"fmt"
 	// "io"
 	//"io/ioutil"
@@ -96,9 +97,14 @@ func ReadMouse(current Activity, leftState int, rightState int, midState int) (i
 	}
 	m := max(current.Rx, current.Ry)
 
+	var toExec bytes.Buffer
 	for i := 0; i < m*10; i++ {
-
-		exec.Command("xdotool", "mousemove_relative", "--", x, y).Run()
+		toExec.WriteString("xdotool mousemove_relative -- ")
+		toExec.WriteString(x)
+		toExec.WriteString(" ")
+		toExec.WriteString(y)
+		toExec.WriteString(";")
 	}
+	exec.Command("bash", "-c", toExec.String()).Run()
 	return leftState, rightState, midState
 }
