@@ -95,7 +95,7 @@ func isClient(IPToCheck net.IP) bool {
 
 	fmt.Println("Checking if " + IPToCheck.String() + " is a client")
 
-	conn, err := net.Dial("tcp", IPToCheck.String()+":8080")
+	conn, err := net.DialTimeout("tcp", IPToCheck.String()+":8080", 5*time.Second)
 	fmt.Println("Dialed up")
 
 	if err != nil {

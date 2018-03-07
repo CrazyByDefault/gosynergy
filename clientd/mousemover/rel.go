@@ -1,7 +1,7 @@
 package mousemover
 
 import (
-	//"fmt"
+	"fmt"
 	// "io"
 	//"io/ioutil"
 
@@ -20,11 +20,10 @@ func check(e error) {
 	}
 }
 
-func ReadMouse(ch chan Activity) {
+func ReadMouse(current Activity) {
 	fmt.Print("Called ReadMouse")
 	//var l, r, mid, xr, yr int
 	var x, y string
-	current := <-ch
 	fmt.Print("Read from chan")
 	// ch.Ri = int(b1[0] & 0x1)
 	// ch.Le = int(b1[0]&0x2) / 2

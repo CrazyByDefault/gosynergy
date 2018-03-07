@@ -3,8 +3,8 @@ package main
 import (
 	"sync"
 
-	"./netcode"
 	"./mousemover"
+	"./netcode"
 )
 
 var wg sync.WaitGroup
@@ -12,7 +12,8 @@ var wg sync.WaitGroup
 func mouseInputListener(inChan chan mousemover.Activity) {
 	go func() {
 		for {
-			mousemover.ReadMouse(inChan)
+			current := <-inChan
+			mousemover.ReadMouse(current)
 		}
 	}()
 	wg.Done()
@@ -23,9 +24,9 @@ func main() {
 
 	netcode.ListenForHost()
 
-	wg.Add(2)
+	wg.Add(1)
 	go mouseInputListener(mouseChan)
-	netcode.RecieveFromHost(mouseChan)
+	go netcode.RecieveFromHost(mouseChan)
 
 	wg.Wait()
 }
