@@ -14,15 +14,6 @@ type Cords struct {
 	X, Y int
 }
 
-func BoundaryCheck(chAbs chan Cords, lim int) {
-
-	b := chAbs
-	if b.X >= lim-10 {
-		fmt.Print("boundary")
-	}
-
-}
-
 func GetMouseAbs(ch chan Cords) {
 	// Create an *exec.Cmd
 	//str:="xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'"
@@ -36,7 +27,7 @@ func GetMouseAbs(ch chan Cords) {
 	c := Cords{}
 	x, _ := strconv.Atoi(s[1])
 	y, _ := strconv.Atoi(s[3])
-	fmt.Println(x, y)
+	// fmt.Println(x, y)
 	//wid,_:= strconv.Atoi(s[7])
 	c.X = x
 	c.Y = y
@@ -50,8 +41,8 @@ func GetMouseAbs(ch chan Cords) {
 	// cmd.Stdout = cmdOutput
 
 	// Execute command
-	//ch <- c
-	fmt.Println(x, y)
+	ch <- c
+	// fmt.Println(x, y)
 	//fmt.Println(wid)
 	//fmt.Println(s[7])
 	time.Sleep(1000 * time.Nanosecond)

@@ -2,7 +2,6 @@ package netcode
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/gob"
 	"fmt"
 	"net"
@@ -29,16 +28,13 @@ func RecieveFromHost() {
 	checkError(err)
 	defer ServerConn.Close()
 
-	var network bytes.Buffer
-	dec := gob.NewDecoder(&network)
-
-	buf := make([]byte, 1024)
+	dec := gob.NewDecoder(ServerConn)
 
 	for {
 		var recievedItem mouselogger.Activity
-		n, addr, err := ServerConn.ReadFromUDP(buf)
 		dec.Decode(&recievedItem)
-		fmt.Println("Received ", string(buf[0:n]), " from ", addr)
+		fmt.Println("Received")
+		fmt.Print(recievedItem)
 
 		if err != nil {
 			fmt.Println("Error: ", err)

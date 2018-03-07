@@ -14,7 +14,7 @@ import (
 )
 
 var connectedDevices []net.IP
-var activeDeviceIndex int
+var activeDeviceIndex = 1
 
 var wg sync.WaitGroup
 
@@ -29,13 +29,17 @@ func getRes() int {
 	return lim
 }
 
-// func boundaryCheck(chAbs chan mouselogger.Cords, lim int) {
-
-// 	if chAbs.X >= lim-10 {
-// 		fmt.Print("boundary")
-// 	}
-
-// }
+func boundaryCheck(chAbs chan mouselogger.Cords, lim int) {
+	go func() {
+		for {
+			current := <-chAbs
+			if current.X >= lim-10 {
+				fmt.Print("boundary")
+			}
+		}
+	}()
+	wg.Done()
+}
 
 func keebListener(chKey chan uint16) {
 	devs, err := keylogger.NewDevices()
@@ -70,30 +74,27 @@ func mouseListener(chAbs chan mouselogger.Cords, chAct chan mouselogger.Activity
 }
 
 func mouseRelTransmit(chRel chan mouselogger.Activity) {
-	netcode.SendToActiveDevice(connectedDevices[activeDeviceIndex], port, chRel)
+	conn := netcode.ConnectToActiveDevice(connectedDevices[activeDeviceIndex], port)
+	netcode.SendToActiveDevice(conn, chRel)
+	netcode.CloseActiveDevice(conn)
 	wg.Done()
 }
 
 func main() {
 
-	getRes()
 	fmt.Println("Discovering clients on the network")
 	connectedDevices = append(connectedDevices, netcode.GetOutboundIP())
-	// connectedDevices = append(connectedDevices, netcode.DiscoverClients()...)
-	fmt.Println("Done.")
+	connectedDevices = append(connectedDevices, netcode.DiscoverClients()...)
+	fmt.Print("Done: ")
+	fmt.Print(connectedDevices)
 	lim := getRes()
 	chAbs := make(chan mouselogger.Cords)
 	chAct := make(chan mouselogger.Activity)
 	chKey := make(chan uint16)
 
-	wg.Add(2)
+	wg.Add(3)
 	go mouseListener(chAbs, chAct)
-	/*////////////////////////////////////////////////////////////
-	I dont know how the channels are working
-	so I made the function once see how the channel
-	should be passed
-	/////////////////////////////////*/
-	go mouselogger.BoundaryCheck(chAbs, lim)
+	go boundaryCheck(chAbs, lim)
 	// netcode.DiscoverClients()
 	// go keebListener(ch_key)
 	go mouseRelTransmit(chAct)
