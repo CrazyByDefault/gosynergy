@@ -11,9 +11,10 @@ var wg sync.WaitGroup
 
 func mouseInputListener(inChan chan mousemover.Activity) {
 	go func() {
+		var ls, rs, ms int
 		for {
 			current := <-inChan
-			mousemover.ReadMouse(current)
+			ls, rs, ms = mousemover.ReadMouse(current, ls, rs, ms)
 		}
 	}()
 	wg.Done()
