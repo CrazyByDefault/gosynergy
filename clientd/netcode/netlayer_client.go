@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
+	"time"
 
 	"../mousemover"
 )
@@ -17,9 +19,9 @@ func checkError(err error) {
 	}
 }
 
-// RecieveFromHost recieves and decodes the data from the host 
+// RecieveFromHost recieves and decodes the data from the host
 func RecieveFromHost(inChan chan mousemover.Activity) {
-	
+
 	ServerAddr, err := net.ResolveUDPAddr("udp", ":7000")
 	checkError(err)
 
@@ -44,7 +46,7 @@ func RecieveFromHost(inChan chan mousemover.Activity) {
 }
 
 // ListenForHost waits for the initial host ping, and responds with a pong.
-func ListenForHost() {
+func ListenForHost() net.IP {
 	ln, _ := net.Listen("tcp", ":8080")
 
 	conn, _ := ln.Accept()
@@ -59,4 +61,31 @@ func ListenForHost() {
 			break
 		}
 	}
+	return net.ParseIP(strings.Split(conn.RemoteAddr().String(), ":")[0])
+}
+
+func ReturnToHost(IPToCheck net.IP) {
+
+	fmt.Println("Checking if " + IPToCheck.String() + " is a client")
+
+	conn, err := net.DialTimeout("tcp", IPToCheck.String()+":8082", 1*time.Second)
+	fmt.Println("Dialed up")
+
+	if err != nil {
+		// log.Print("Error: ", err)
+		return
+	}
+	defer conn.Close()
+
+	conn.Write([]byte("ping\r\n\r\n"))
+
+	conn.SetDeadline(time.Now().Add(3 * time.Second))
+	buff := make([]byte, 1024)
+	fmt.Println("Waiting for reply")
+	n, _ := conn.Read(buff)
+	if fmt.Sprintf("%s", buff[:n]) != "" {
+		fmt.Println("Pong!")
+
+	}
+
 }

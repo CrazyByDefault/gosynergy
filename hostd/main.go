@@ -88,6 +88,7 @@ func mouseRelTransmit(chRel chan mouselogger.Activity, chSwitch chan bool) {
 		switch activeDeviceIndex {
 		case 1:
 			conn := netcode.ConnectToActiveDevice(connectedDevices[activeDeviceIndex], port)
+			go netcode.ListenForClientBoundary(chSwitch)
 			netcode.SendToActiveDevice(conn, chRel, chSwitch)
 		}
 	}

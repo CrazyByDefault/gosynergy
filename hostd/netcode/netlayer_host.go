@@ -1,6 +1,7 @@
 package netcode
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/gob"
 	"fmt"
@@ -125,4 +126,23 @@ func isClient(IPToCheck net.IP) bool {
 	}
 
 	return false
+}
+
+// ListenForHostBoundary waits for the initial host ping, and responds with a pong.
+func ListenForClientBoundary(chSwitch chan bool) {
+	ln, _ := net.Listen("tcp", ":8082")
+
+	conn, _ := ln.Accept()
+	// fmt.Println("Connection accepted")
+
+	for {
+		message, _ := bufio.NewReader(conn).ReadString('\n')
+
+		if string(message) != "" {
+			conn.Write([]byte("pong\r\n\r\n"))
+			// println("Connected to host")
+			chSwitch <- true
+			return
+		}
+	}
 }
