@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	// netcode.RecieveFromHost()
 	netcode.ListenForHost()
+	netcode.RecieveFromHost()
 }
