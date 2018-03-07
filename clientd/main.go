@@ -37,13 +37,12 @@ func boundaryCheck(chAbs chan mouselogger.Cords, lim int, chSwitch chan bool) {
 	wg.Done()
 }
 
-func switchActiveDevice(chSwitch chan bool) {
+func switchActiveDevice() {
 	if activeDeviceIndex == 0 {
 		activeDeviceIndex = 1
 	} else {
 		activeDeviceIndex = 0
 	}
-	chSwitch <- true
 }
 
 func mouseInputListener(inChan chan mousemover.Activity) {
@@ -74,12 +73,13 @@ func main() {
 			mouselogger.GetMouseAbs(chAbs)
 		}
 	}()
-	go boundaryCheck(chAbs, lim, chSwitch)
+	go boundaryCheck(chAbs, lim)
 	go func() {
 		for {
-			select {
-			case <-chSwitch:
+			if activeDeviceIndex == 0 {
 				netcode.ReturnToHost(host)
+			} else {
+				time.Sleep(1 * time.Millisecond)
 			}
 		}
 	}()

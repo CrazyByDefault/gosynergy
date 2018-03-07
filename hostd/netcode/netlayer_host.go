@@ -36,18 +36,20 @@ func ConnectToActiveDevice(deviceIP net.IP, port int) net.Conn {
 
 	Conn, err := net.DialUDP("udp", nil, ServerAddr)
 	checkError(err)
-
+	fmt.Println("Connected")
 	return Conn
 }
 
 // SendToActiveDevice sends mouse activity to the active device using UDP
 func SendToActiveDevice(Conn net.Conn, chRel chan mouselogger.Activity, chSwitch chan bool) {
+	fmt.Println("Sending?")
 	enc := gob.NewEncoder(Conn)
 	defer Conn.Close()
 
 	for {
 		select {
 		default:
+			fmt.Println("Sending.")
 			item := <-chRel
 			fmt.Print(item)
 			encErr := enc.Encode(item)
@@ -57,6 +59,10 @@ func SendToActiveDevice(Conn net.Conn, chRel chan mouselogger.Activity, chSwitch
 			break
 
 		case <-chSwitch:
+			fmt.Println("Closing connection")
+			for len(chSwitch) > 0 {
+				<-chSwitch
+			}
 			Conn.Close()
 			return
 		}
@@ -133,14 +139,14 @@ func ListenForClientBoundary(chSwitch chan bool) {
 	ln, _ := net.Listen("tcp", ":8082")
 
 	conn, _ := ln.Accept()
-	// fmt.Println("Connection accepted")
+	fmt.Println("Client Boundary Listener Started")
 
 	for {
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 
 		if string(message) != "" {
 			conn.Write([]byte("pong\r\n\r\n"))
-			// println("Connected to host")
+			println("Back to host")
 			chSwitch <- true
 			return
 		}
