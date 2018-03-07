@@ -66,7 +66,7 @@ func ListenForHost() net.IP {
 
 func ReturnToHost(IPToCheck net.IP) {
 
-	fmt.Println("Checking if " + IPToCheck.String() + " is a client")
+	// fmt.Println("Checking if " + IPToCheck.String() + " is a client")
 
 	conn, err := net.DialTimeout("tcp", IPToCheck.String()+":8082", 1*time.Second)
 	fmt.Println("Dialed up")

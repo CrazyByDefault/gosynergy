@@ -13,24 +13,15 @@ import (
 )
 
 var wg sync.WaitGroup
-var activeDeviceIndex int
+var activeDeviceIndex = 1
 
-func getRes() int {
-	toExec := "xdpyinfo  | grep -oP 'dimensions:\\s+\\K\\S+'"
-	cmd, _ := exec.Command("bash", "-c", toExec).Output()
-	s := strings.Split(string(cmd), "x")
-	lim, _ := strconv.Atoi(s[0])
-
-	return lim
-}
-
-func boundaryCheck(chAbs chan mouselogger.Cords, lim int, chSwitch chan bool) {
+func boundaryCheck(chAbs chan mouselogger.Cords, lim int) {
 	go func() {
 		for {
 			current := <-chAbs
-			if current.X >= lim-3 {
+			if current.X <= 10 {
 				fmt.Print("boundary")
-				switchActiveDevice(chSwitch)
+				switchActiveDevice()
 			}
 		}
 	}()
@@ -57,9 +48,7 @@ func mouseInputListener(inChan chan mousemover.Activity) {
 }
 
 func main() {
-	lim := getRes()
 	chAbs := make(chan mouselogger.Cords)
-	chSwitch := make(chan bool)
 
 	mouseChan := make(chan mousemover.Activity)
 
@@ -86,5 +75,4 @@ func main() {
 
 	wg.Wait()
 	close(chAbs)
-	close(chSwitch)
 }
