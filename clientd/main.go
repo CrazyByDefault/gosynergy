@@ -75,14 +75,14 @@ func main() {
 		}
 	}()
 	go boundaryCheck(chAbs, lim, chSwitch)
-	go func () {
+	go func() {
 		for {
 			select {
 			case <-chSwitch:
 				netcode.ReturnToHost(host)
 			}
 		}
-	}
+	}()
 
 	wg.Wait()
 	close(chAbs)
