@@ -20,11 +20,11 @@ func mouseInputListener(inChan chan mousemover.Activity) {
 }
 
 func main() {
-	var mouseChan chan mousemover.Activity
+	mouseChan := make(chan mousemover.Activity)
 
 	netcode.ListenForHost()
 
-	wg.Add(1)
+	wg.Add(2)
 	go mouseInputListener(mouseChan)
 	go netcode.RecieveFromHost(mouseChan)
 
